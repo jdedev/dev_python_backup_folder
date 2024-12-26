@@ -3,8 +3,6 @@ import tarfile
 import datetime
 import logging
 import sys
-import time
-import subprocess
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
