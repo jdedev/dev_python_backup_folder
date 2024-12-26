@@ -9,7 +9,11 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {
+                "SOURCE_FOLDER": ".vscode",
+                "BACKUP_FOLDER": "backup-target"
+            }
         }
     ]
 }
