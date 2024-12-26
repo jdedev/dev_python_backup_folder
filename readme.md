@@ -12,3 +12,8 @@ sudo usermod -aG docker $USER
 docker run hello-world
 ```
 
+> bash into container
+
+```
+docker exec -it backup "bash"
+```

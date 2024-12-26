@@ -1,10 +1,11 @@
-#bash
-export SOURCE_FOLDER='app'
-export BACKUP_FOLDER='backup'
+#/bin/bash
+# export SOURCE_FOLDER=".vscode"
+export SOURCE_FOLDER="venv"
+export BACKUP_FOLDER="backup-target"
 
 docker run --name backup \
-    -e SOURCE_FOLDER=${SOURCE_FOLDER} \
-    -e BACKUP_FOLDER=${BACKUP_FOLDER} \
-    # -v ${SOURCE_FOLDER}:/data/source \
-    # -v ${BACKUP_FOLDER}:/data/backup \
+    -e SOURCE_FOLDER=/data/source \
+    -e BACKUP_FOLDER=/data/backup \
+    -v ./${SOURCE_FOLDER}:/data/source \
+    -v ./${BACKUP_FOLDER}:/data/backup \
     backup

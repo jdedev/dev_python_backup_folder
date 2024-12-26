@@ -15,7 +15,7 @@ def backup_folder_func(source_folder, backup_folder):
     
     # Generate the backup file name with timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    backup_file = os.path.join(backup_folder, f"backup_{timestamp}.tar.gz")
+    backup_file = os.path.join(backup_folder, f"{timestamp}_backup.tar.gz")
     
     # Create tar.gz file
     with tarfile.open(backup_file, "w:gz") as tar:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     #     logging.error(f"Tree command failed with error: {e}")
 
     # Keep the script running
-    while True:
-        time.sleep(60)
-        logging.info('Sleeping for 60 seconds...')
+    # while True:
+    #     time.sleep(60)
+    #     logging.info('Sleeping for 60 seconds...')
 
