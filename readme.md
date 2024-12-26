@@ -5,3 +5,10 @@
 ```shell
 apt install python3
 ```
+
+```shell
+sudo groupadd docker
+sudo usermod -aG docker $USER
+docker run hello-world
+```
+
