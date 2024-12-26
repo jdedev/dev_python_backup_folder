@@ -8,4 +8,4 @@ docker run --name backup \
     -e BACKUP_FOLDER=/data/backup \
     -v ./${SOURCE_FOLDER}:/data/source \
     -v ./${BACKUP_FOLDER}:/data/backup \
-    backup
+    jdedev/backup:latest
