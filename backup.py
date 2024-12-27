@@ -3,6 +3,7 @@ import tarfile
 import datetime
 import logging
 import sys
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -57,6 +58,6 @@ if __name__ == "__main__":
     #     logging.error(f"Tree command failed with error: {e}")
 
     # Keep the script running
-    # while True:
-    #     time.sleep(60)
-    #     logging.info('Sleeping for 60 seconds...')
+    while True:
+        logging.info("Sleeping for 60 seconds...")
+        time.sleep(60)
