@@ -1,4 +1,6 @@
 #/bin/bash
+cat $0 && echo
+
 # export SOURCE_FOLDER=".vscode"
 export SOURCE_FOLDER="venv"
 export BACKUP_FOLDER="backup-target"
