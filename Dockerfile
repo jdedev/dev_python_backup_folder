@@ -6,6 +6,10 @@ WORKDIR /app
 
 # Copy the Python script into the container
 COPY backup.py /app/backup.py
+COPY requirements.txt /app/requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set default environment variables (you can override these when running the container)
 ENV SOURCE_FOLDER=/data/source

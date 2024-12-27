@@ -4,11 +4,9 @@ import datetime
 import logging
 import sys
 import time
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+import os
+import schedule
+from crontab import CronTab  # type: ignore
 
 
 def backup_folder_func(source_folder, backup_folder):
@@ -17,7 +15,7 @@ def backup_folder_func(source_folder, backup_folder):
 
     # Generate the backup file name with timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    backup_file = os.path.join(backup_folder, f"{timestamp}_backup.tar.gz")
+    backup_file = os.path.join(backup_folder, f"backup_{timestamp}.tar.gz")
 
     # Create tar.gz file
     with tarfile.open(backup_file, "w:gz") as tar:
@@ -25,13 +23,42 @@ def backup_folder_func(source_folder, backup_folder):
             for file in files:
                 file_path = os.path.join(root, file)
                 tar.add(file_path, arcname=os.path.relpath(file_path, source_folder))
-                logging.info(f"Added {file_path} to {backup_file}")
+                logging.info(f"{SCRIPT_NAME}: Added {file_path} to {backup_file}")
 
-    logging.info(f"Backup completed successfully: {backup_file}")
+    logging.info(f"{SCRIPT_NAME}: Backup completed successfully: {backup_file}")
+
+
+def parse_crontab_func(crontab_string):
+    cron = CronTab(crontab_string)
+    return cron
+
+
+def schedule_backup_func(crontab_string, source_folder, backup_folder):
+    cron = parse_crontab_func(crontab_string)
+    schedule.every(cron.minute).minutes.do(
+        backup_folder_func, source_folder, backup_folder
+    )
+    schedule.every(cron.hour).hours.do(backup_folder_func, source_folder, backup_folder)
+    schedule.every(cron.day).days.do(backup_folder_func, source_folder, backup_folder)
+    schedule.every(cron.month).months.do(
+        backup_folder_func, source_folder, backup_folder
+    )
+    schedule.every(cron.dow).days.do(backup_folder_func, source_folder, backup_folder)
 
 
 if __name__ == "__main__":
-    logging.info("Start")
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    current_file_path = __file__
+    # Get only the file name
+    current_file_name = os.path.basename(current_file_path)
+    SCRIPT_NAME = current_file_name
+
+    print(f"Current file path: {current_file_path}")
+    print(f"Current file name: {current_file_name}")
+    logging.info(f"{SCRIPT_NAME}: Start")
 
     # Define the source folder and backup folder
     source_folder = os.getenv("SOURCE_FOLDER")
@@ -39,25 +66,25 @@ if __name__ == "__main__":
 
     if not source_folder or not backup_folder:
         logging.error(
-            "SOURCE_FOLDER or BACKUP_FOLDER environment variable not defined."
+            f"{SCRIPT_NAME}: SOURCE_FOLDER or backup_folder_func environment variable not defined."
         )
         sys.exit(1)
 
-    logging.info(f"Source folder: {source_folder}")
-    logging.info(f"Backup folder: {backup_folder}")
+    logging.info(f"{SCRIPT_NAME}: Source folder: {source_folder}")
+    logging.info(f"{SCRIPT_NAME}: Backup folder: {backup_folder}")
 
-    backup_folder_func(source_folder, backup_folder)
+    # Define the crontab string
+    crontab_string = os.getenv(
+        "CRONTAB_STRING", "* * * * *"
+    )  # Default to run every hour
+    logging.info(f"{SCRIPT_NAME}: Crontab string: {crontab_string}")
 
-    logging.info("Finish")
+    # Schedule the backup function
+    schedule_backup_func(crontab_string, source_folder, backup_folder)
 
-    # Run the tree command and log its output
-    # try:
-    #     result = subprocess.run(['tree', source_folder], capture_output=True, text=True, check=True)
-    #     logging.info(f"Tree command output:\n{result.stdout}")
-    # except subprocess.CalledProcessError as e:
-    #     logging.error(f"Tree command failed with error: {e}")
+    logging.info(f"{SCRIPT_NAME}: Finish")
 
-    # Keep the script running
+    # Keep the script running and check the schedule
     while True:
-        logging.info("Sleeping for 60 seconds...")
-        time.sleep(60)
+        schedule.run_pending()
+        time.sleep(1)
