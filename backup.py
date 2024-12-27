@@ -1,12 +1,11 @@
 import os
 import tarfile
-import datetime
 import logging
 import sys
 import time
 import os
-import schedule
-from crontab import CronTab  # type: ignore
+import datetime
+from crontab import CronTab
 
 
 def backup_folder_func(source_folder, backup_folder):
@@ -29,21 +28,23 @@ def backup_folder_func(source_folder, backup_folder):
 
 
 def parse_crontab_func(crontab_string):
-    cron = CronTab(crontab_string)
-    return cron
+    try:
+        cron = CronTab(crontab_string)
+        return cron
+    except ValueError as e:
+        logging.error(f"Invalid crontab string: {crontab_string}")
+        raise e
 
 
-def schedule_backup_func(crontab_string, source_folder, backup_folder):
-    cron = parse_crontab_func(crontab_string)
-    schedule.every(cron.minute).minutes.do(
-        backup_folder_func, source_folder, backup_folder
-    )
-    schedule.every(cron.hour).hours.do(backup_folder_func, source_folder, backup_folder)
-    schedule.every(cron.day).days.do(backup_folder_func, source_folder, backup_folder)
-    schedule.every(cron.month).months.do(
-        backup_folder_func, source_folder, backup_folder
-    )
-    schedule.every(cron.dow).days.do(backup_folder_func, source_folder, backup_folder)
+def schedule_backup_func(source_folder, backup_folder):
+    backup_folder_func(source_folder, backup_folder)
+
+    # Access its attributes
+    # print("Minute field:", cron.matchers[0].input)
+    # print("Hour field:", cron.matchers[1].input)
+    # print("Day of month field:", cron.matchers[2].input)
+    # print("Month field:", cron.matchers[3].input)
+    # print("Day of week field:", cron.matchers[4].input)
 
 
 if __name__ == "__main__":
@@ -56,8 +57,8 @@ if __name__ == "__main__":
     current_file_name = os.path.basename(current_file_path)
     SCRIPT_NAME = current_file_name
 
-    print(f"Current file path: {current_file_path}")
-    print(f"Current file name: {current_file_name}")
+    logging.info(f"Current file path: {current_file_path}")
+    logging.info(f"Current file name: {current_file_name}")
     logging.info(f"{SCRIPT_NAME}: Start")
 
     # Define the source folder and backup folder
@@ -74,17 +75,28 @@ if __name__ == "__main__":
     logging.info(f"{SCRIPT_NAME}: Backup folder: {backup_folder}")
 
     # Define the crontab string
-    crontab_string = os.getenv(
+    CRONTAB_STRING = os.getenv(
         "CRONTAB_STRING", "* * * * *"
     )  # Default to run every hour
-    logging.info(f"{SCRIPT_NAME}: Crontab string: {crontab_string}")
+    logging.info(f"{SCRIPT_NAME}: Crontab string: {CRONTAB_STRING}")
+    parse_crontab_func(CRONTAB_STRING)
 
     # Schedule the backup function
-    schedule_backup_func(crontab_string, source_folder, backup_folder)
+    schedule_backup_func(source_folder, backup_folder)
 
     logging.info(f"{SCRIPT_NAME}: Finish")
 
     # Keep the script running and check the schedule
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        now = datetime.datetime.now()
+        cron = CronTab(CRONTAB_STRING)
+        if cron.test(now):  # Check if current time matches cron schedule
+            schedule_backup_func(source_folder, backup_folder)
+            time.sleep(1)  # Prevent multiple triggers within the same minute
+        else:
+            print(datetime.datetime.now())
+
+        time.sleep(1)  # Avoid busy waiting
