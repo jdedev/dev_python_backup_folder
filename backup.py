@@ -94,9 +94,10 @@ if __name__ == "__main__":
         now = datetime.datetime.now()
         cron = CronTab(CRONTAB_STRING)
         if cron.test(now):  # Check if current time matches cron schedule
+            logging.info(f"{SCRIPT_NAME}: cron job triggered at {now}")
             schedule_backup_func(source_folder, backup_folder)
             time.sleep(1)  # Prevent multiple triggers within the same minute
         else:
-            print(datetime.datetime.now())
+            logging.info(f"{SCRIPT_NAME}: sleeping at {now}")
 
         time.sleep(1)  # Avoid busy waiting
