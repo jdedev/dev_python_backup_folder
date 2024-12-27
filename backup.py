@@ -39,12 +39,15 @@ def parse_crontab_func(crontab_string):
 def schedule_backup_func(source_folder, backup_folder):
     backup_folder_func(source_folder, backup_folder)
 
-    # Access its attributes
-    # print("Minute field:", cron.matchers[0].input)
-    # print("Hour field:", cron.matchers[1].input)
-    # print("Day of month field:", cron.matchers[2].input)
-    # print("Month field:", cron.matchers[3].input)
-    # print("Day of week field:", cron.matchers[4].input)
+
+def set_env_func():
+    # Set the environment variables
+    # os.environ["SOURCE_FOLDER"] = "/source"
+    # os.environ["BACKUP_FOLDER"] = "/backup"
+    # os.environ["CRONTAB_STRING"] = "* * * * *"
+    os.environ["TZ"] = os.getenv("TZ")
+    time.tzset()  # Apply the change
+    logging.info(f"TZ: {os.environ['TZ']}")
 
 
 if __name__ == "__main__":
@@ -52,6 +55,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
+    set_env_func()
     current_file_path = __file__
     # Get only the file name
     current_file_name = os.path.basename(current_file_path)
