@@ -5,6 +5,8 @@ import sys
 import time
 import os
 import datetime
+import pytz
+import math
 from crontab import CronTab
 
 
@@ -41,29 +43,38 @@ def schedule_backup_func(source_folder, backup_folder):
 
 
 def set_env_func():
+    # Define global variables
+    global SCRIPT_NAME
+    global source_folder
+    global backup_folder
+
     # Set the environment variables
-    # os.environ["SOURCE_FOLDER"] = "/source"
-    # os.environ["BACKUP_FOLDER"] = "/backup"
-    # os.environ["CRONTAB_STRING"] = "* * * * *"
     os.environ["TZ"] = os.getenv("TZ")
     time.tzset()  # Apply the change
     logging.info(f"TZ: {os.environ['TZ']}")
+    # Log the current working directory
+    current_working_directory = os.getcwd()
+    logging.info(f"Current working directory: {current_working_directory}")
 
-
-if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    set_env_func()
+    # Get current file path and name
     current_file_path = __file__
-    # Get only the file name
     current_file_name = os.path.basename(current_file_path)
     SCRIPT_NAME = current_file_name
 
     logging.info(f"Current file path: {current_file_path}")
     logging.info(f"Current file name: {current_file_name}")
     logging.info(f"{SCRIPT_NAME}: Start")
+
+    # Log files and folders in the current directory
+    current_directory = os.getcwd()
+    logging.info(f"{SCRIPT_NAME}: Current directory: {current_directory}")
+
+    try:
+        items = os.listdir(current_directory)
+        for item in items:
+            logging.info(f"{SCRIPT_NAME}: Found item: {item}")
+    except Exception as e:
+        logging.error(f"{SCRIPT_NAME}: Error listing directory contents: {e}")
 
     # Define the source folder and backup folder
     source_folder = os.getenv("SOURCE_FOLDER")
@@ -75,8 +86,26 @@ if __name__ == "__main__":
         )
         sys.exit(1)
 
+
+if __name__ == "__main__":
+    # Set global variables
+    SCRIPT_NAME = ""
+    source_folder = ""
+    backup_folder = ""
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+
+    set_env_func()
+
     logging.info(f"{SCRIPT_NAME}: Source folder: {source_folder}")
     logging.info(f"{SCRIPT_NAME}: Backup folder: {backup_folder}")
+
+    # Define the timezone using the TZ environment variable
+    TIMEZONE = os.getenv("TZ", "UTC")
+    timezone = pytz.timezone(TIMEZONE)
 
     # Define the crontab string
     CRONTAB_STRING = os.getenv(

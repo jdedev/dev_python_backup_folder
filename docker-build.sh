@@ -1,4 +1,5 @@
 #bash
+docker rm backup
 docker build -t jdedev/backup:latest .
 # docker build -t backup .
 # docker tag backup jdedev/backup:latest

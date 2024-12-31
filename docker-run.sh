@@ -3,7 +3,7 @@ cat $0 && echo
 
 # export SOURCE_FOLDER=".vscode"
 export SOURCE_FOLDER="venv"
-export BACKUP_FOLDER="backup-target"
+export BACKUP_FOLDER="backup"
 
 docker run --name backup \
     -e SOURCE_FOLDER=/data/source \
