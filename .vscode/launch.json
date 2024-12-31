@@ -13,7 +13,7 @@
             "env": {
                 "TZ": "Australia/Melbourne",
                 "SOURCE_FOLDER": ".vscode",
-                "BACKUP_FOLDER": "backup-target"
+                "BACKUP_FOLDER": "backup"
             }
         }
     ]

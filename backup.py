@@ -126,11 +126,12 @@ if __name__ == "__main__":
     while True:
         now = datetime.datetime.now()
         cron = CronTab(CRONTAB_STRING)
+        next_event = cron.next(now, default_utc=False)
         if cron.test(now):  # Check if current time matches cron schedule
             logging.info(f"{SCRIPT_NAME}: cron job triggered at {now}")
             schedule_backup_func(source_folder, backup_folder)
             time.sleep(1)  # Prevent multiple triggers within the same minute
         else:
-            logging.info(f"{SCRIPT_NAME}: sleeping at {now}")
+            logging.info(f"{SCRIPT_NAME}: sleeping at {now} until {next_event}")
 
         time.sleep(1)  # Avoid busy waiting

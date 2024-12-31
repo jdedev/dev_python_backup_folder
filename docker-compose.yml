@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  backup:
+    image: jdedev/backup:latest
+    container_name: backup
+    environment:
+      - SOURCE_FOLDER=/data/source
+      - BACKUP_FOLDER=/data/backup
+      - TZ=Australia/Melbourne
+    volumes:
+      - ./venv:/data/source
+      - ./backup:/data/backup
